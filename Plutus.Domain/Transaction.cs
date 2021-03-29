@@ -2,7 +2,7 @@
 
 namespace Plutus.Domain
 {
-    public class Class1
+    public class Transaction
     {
     }
 }

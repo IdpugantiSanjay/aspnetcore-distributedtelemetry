@@ -9,6 +9,7 @@ services:
       dockerfile: Plutus.Api/Dockerfile
     depends_on:
       - database-server
+      - jaeger
     ports:
     - 5000:80
   database-server:

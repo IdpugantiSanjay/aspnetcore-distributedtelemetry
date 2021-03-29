@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Plutus.Api.Common;
 
 namespace Plutus.Api
 {
@@ -21,13 +23,15 @@ namespace Plutus.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOpenTelemetryTracing((builder) => builder
-                .AddAspNetCoreInstrumentation()
-                .AddConsoleExporter()
-                .AddJaegerExporter(o =>
-                {
-                    o.AgentHost = "jaeger";
-                }));
+            services.AddOpenTelemetryTracing((builder) =>
+            {
+                builder
+                    .AddSource(AppActivitySource.Name)
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("Sanjay.Plutus"))
+                    .AddAspNetCoreInstrumentation()
+                    .AddConsoleExporter()
+                    .AddJaegerExporter(o => o.AgentHost = "jaeger");
+            });
             
             services.AddControllers();
 
@@ -55,12 +59,10 @@ namespace Plutus.Api
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    context.Response.Headers.Add("RequestId", Activity.Current?.TraceId.ToString() ?? string.Empty);
                     await context.Response.WriteAsync("Sanjay");
                 });
                 
                 endpoints.MapControllers(); 
-                
             });
         }
     }
