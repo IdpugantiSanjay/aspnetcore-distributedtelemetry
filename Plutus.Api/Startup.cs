@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,11 +30,13 @@ namespace Plutus.Api
                     .AddSource(AppActivitySource.Name)
                     .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("Sanjay.Plutus"))
                     .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
                     .AddConsoleExporter()
                     .AddJaegerExporter(o => o.AgentHost = "jaeger");
             });
             
             services.AddControllers();
+            services.AddHttpClient("JSON Place holder").ConfigureHttpClient(c => c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
 
             services.AddSwaggerGen(c =>
             {

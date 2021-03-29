@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,13 +22,17 @@ namespace Plutus.Api.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        private readonly HttpClient _client;
+
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
+
+            _client = httpClientFactory.CreateClient("JSON Place holder");
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public async Task<IEnumerable<WeatherForecast>> Get()
         {
             var rng = new Random();
 
@@ -37,6 +42,12 @@ namespace Plutus.Api.Controllers
                 activity?.SetTag("temperatureInCelsius", "36c");
                 activity?.SetTag("summary", "Cool");
             }
+
+            await _client.GetAsync("/todo/2");
+            
+#pragma warning disable 4014
+            _client.GetAsync("/todos/1");
+#pragma warning restore 4014
             
             return Enumerable.Range(1, 5).Select(index =>
                 {
